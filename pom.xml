@@ -19,6 +19,9 @@
         <quarkus.container-image.builder>jib</quarkus.container-image.builder>
         <quarkus.container-image.name>my_quarkus_image</quarkus.container-image.name>
         <quarkus.container-image.tag>v2.0.0</quarkus.container-image.tag>
+        <sonar.projectKey>my_quarkus_app</sonar.projectKey>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.login>squ_328b115666d6bf683cba005320c9815e0adb58cd</sonar.login>
 <!--        <quarkus.container-image.registry>your-registry</quarkus.container-image.registry>-->
 <!--        <maven.home>/path/to/your/maven/home</maven.home>-->
     </properties>
@@ -76,6 +79,12 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.sonarsource.scanner.maven</groupId>-->
+<!--            <artifactId>sonar-maven-plugin</artifactId>-->
+<!--            <version>3.11.0.3922</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -168,6 +177,14 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.11.0.3922</version>
+            </plugin>
+
+
+
         </plugins>
     </build>
 
@@ -184,5 +201,16 @@
                 <quarkus.native.enabled>true</quarkus.native.enabled>
             </properties>
         </profile>
+<!--        <profile>-->
+<!--            <id>build-container</id>-->
+<!--            <properties>-->
+<!--                <quarkus.container-image.build>true</quarkus.container-image.build>-->
+<!--                <quarkus.container-image.group>ousmanevincent</quarkus.container-image.group>-->
+<!--                <quarkus.container-image.name>my_quarkus</quarkus.container-image.name>-->
+<!--                <quarkus.container-image.tag>1.0</quarkus.container-image.tag>-->
+<!--                <quarkus.container-image.registry>docker.io</quarkus.container-image.registry>-->
+<!--                <quarkus.container-image.push>true</quarkus.container-image.push>-->
+<!--            </properties>-->
+<!--        </profile>-->
     </profiles>
 </project>

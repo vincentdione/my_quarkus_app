@@ -1,0 +1,49 @@
+
+registries-ovd: &regsitries-ovd
+  username: ((docker_ovd.username))
+  password: ((docker_ovd.password))
+
+
+resource_types:
+
+
+resources:
+
+  - name: git-ci
+    type: git
+    icon: git
+    source:
+      uri: ssh://git@github.com:vincentdione/my_quarkus_app.git
+      branch: master
+      private_key: (("github.cle_privee"))
+    webhook_token: token-du-webhook
+
+  - name: version-backend
+    type: semver
+    icon: tag
+    source:
+      driver: git
+      uri: ssh://git@github.com:vincentdione/my_quarkus_app.git
+
+
+jobs:
+  - name: installation_du_pipeline
+    public: true
+    plan:
+      - get: git-ci
+        trigger: true
+      - set_pipeline: my_app_pipeline
+        file: git-ci/ci/pipeline.yml
+        var_files: [git-ci/ci/pipeline-vars.yaml]
+
+
+
+
+groups:
+  - name: pipeline-backend
+    jobs:
+      - construit_livrables_backend_avec_helm
+      - incremente_version_backend
+  - name: ci
+    jobs:
+      - installation_du_pipeline
