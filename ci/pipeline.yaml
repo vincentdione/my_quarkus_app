@@ -65,8 +65,7 @@ jobs:
           trigger: true
         - get: artifacts
           trigger: true
-       # - load_var: var-version-my_backend
-       #   file: version-backend/version
+        
 
 
       - task: build-image
