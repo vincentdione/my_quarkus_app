@@ -34,7 +34,7 @@ EOF
 
 
 fly_login() {
-    fly -t $EQUIPE status || fly -t $EQUIPE login -c http://localhost:8080 -u test -p test --team-name $EQUIPE && return 0
+    fly -t $EQUIPE status || fly -t $EQUIPE login -c http://localhost:8080 -u ovd -p ovd --team-name $EQUIPE && return 0
 }
 
 #fly_login() {
