@@ -11,7 +11,7 @@ WORKDIR /workspace
 COPY pom.xml ./
 COPY src ./src
 
-RUN echo QUARKUS_PROFILE
+RUN echo $QUARKUS_PROFILE
 
 # Package the application using Maven
 RUN mvn clean package -Dquarkus.profile=${QUARKUS_PROFILE} -DskipTests
