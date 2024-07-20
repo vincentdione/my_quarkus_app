@@ -59,7 +59,7 @@ jobs:
 
         - task: build-image
           privileged: true
-          file: git-ci/ci/tasks/task.yml
+          file: git-ci/ci/tasks/task.yaml
           params:
             BUILD_ARG_QUARKUS_PROFILE: dev
             BUILD_ARG_APP_NAME: my-quarkus-app-1
