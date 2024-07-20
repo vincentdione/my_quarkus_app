@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: registry-image
   source:
-    repository: concourse/oci-build-task
+    repository: docker
 inputs:
 - name: git-sources
 outputs:
