@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: registry-image
   source:
-    repository: docker
+    repository: concourse/oci-build-task
 inputs:
 - name: git-sources
 outputs:
@@ -15,12 +15,5 @@ params:
   BUILD_ARG_APP_NAME: ""
 run:
   path: build
-  args:
-    - --build-arg
-    - QUARKUS_PROFILE=${BUILD_ARG_QUARKUS_PROFILE}
-    - --build-arg
-    - APP_NAME=${BUILD_ARG_APP_NAME}
-    - -t
-    - $(cat /tmp/build/put/image/digest)
-    - ${CONTEXT}
+  
 

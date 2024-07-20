@@ -14,6 +14,15 @@ resources:
       username: ((github.username))
       password: ((github.token))
     webhook_token: token-du-webhook
+  
+  - name: artifacts
+    type: git
+    source:
+      uri: https://github.com/vincentdione/artifact.git
+      branch: main
+      username: ((github.username))
+      password: ((github.token))
+    webhook_token: token-du-webhook
 
   - name: version-backend
     type: semver
@@ -54,18 +63,20 @@ jobs:
           trigger: true
         - get: version-backend
           trigger: true
-        - load_var: var-version-my_backend
-          file: version-backend/version
+        - get: artifacts
+          trigger: true
+       # - load_var: var-version-my_backend
+       #   file: version-backend/version
 
 
-        - task: build-image
-          privileged: true
-          file: git-ci/ci/tasks/task.yaml
-          params:
+      - task: build-image
+        privileged: true
+        file: artifacts/tasks/task.yaml
+        params:
             BUILD_ARG_QUARKUS_PROFILE: dev
             BUILD_ARG_APP_NAME: my-quarkus-app-1
-            BUILD_ARG_VERSION: ((.:var-version-my_backend))
-          input_mapping:
+            BUILD_ARG_VERSION: version-backend/version
+        input_mapping:
             git-sources: git-ci
 
 
