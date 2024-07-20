@@ -1,21 +1,18 @@
 
 registries-ovd: &registries-ovd
-  username: ((docker_ovd.username))
-  password: ((docker_ovd.password))
+  username: ((composants.docker_username))
+  password: ((composants.docker_token))
   
-
-
-
 
 resources:
 
   - name: git-ci
     type: git
-    icon: git
     source:
-      uri: ssh://git@github.com:vincentdione/my_quarkus_app.git
-      branch: master
-      private_key: (("github.cle_privee"))
+      uri: https://github.com/vincentdione/my_quarkus_app.git
+      branch: main
+      username: ((github.username))
+      password: ((github.token))
     webhook_token: token-du-webhook
 
   - name: version-backend
@@ -23,16 +20,17 @@ resources:
     icon: tag
     source:
       driver: git
-      uri: ssh://git@github.com:vincentdione/my_quarkus_app.git
-      branch: master
-      private_key: (("github.cle_privee"))
+      uri: https://github.com/vincentdione/my_quarkus_app.git
+      branch: main
+      username: ((github.username))
+      password: ((github.token))
       file: version.txt
       commit_message: "[skip ci] Montée de version"
 
   - name: my_quarkus_image
     type: registry-image
     source:
-      repository: ((docker_repo))/((composants.nom_image))
+      repository: docker
       <<: *registries-ovd
 
 
@@ -44,7 +42,7 @@ jobs:
       - get: git-ci
         trigger: true
       - set_pipeline: my_app_pipeline
-        file: git-ci/ci/pipeline.yml
+        file: git-ci/ci/pipeline.yaml
         var_files: [git-ci/ci/pipeline-vars.yaml]
 
   - name: construit_livrables_backend_avec_helm
@@ -56,6 +54,9 @@ jobs:
           trigger: true
         - get: version-backend
           trigger: true
+        - load_var: var-version-my_backend
+          file: version-backend/version
+
 
         - task: build-image
           privileged: true
@@ -63,7 +64,11 @@ jobs:
           params:
             BUILD_ARG_QUARKUS_PROFILE: dev
             BUILD_ARG_APP_NAME: my-quarkus-app-1
-        
+            BUILD_ARG_VERSION: ((.:var-version-my_backend))
+          input_mapping:
+            git-sources: git-ci
+
+
       - put: my_quarkus_image
         params:
           image: image/image.tar

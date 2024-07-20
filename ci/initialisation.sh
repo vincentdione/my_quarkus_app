@@ -8,7 +8,10 @@ NOM_PIPELINE="my_app_pipeline"
 NOM_FICHIER_PIPELINE="pipeline.yaml"
 NOM_FICHIER_VARIABLE="pipeline-vars.yaml"
 # Ici <feder> correspond à l'équipe déclarée dans le projet http://git-scm.pole-emploi.intra/plateforme/k8s/build/equipes
-EQUIPE="ovd"
+EQUIPE="test"
+CONCOURSE_URL="http://localhost:8080"
+USERNAME="test"
+PASSWORD="test"
 # Doit correspondre au fichier où sont stockés les versions de production
 FICHIER_VERSIONS_PROD="changement/versions-prod.json"
 # Map pour associer la resource concourse avec le fichier de sauvegarde de la version
@@ -17,6 +20,7 @@ VERSIONS=("version-pn364-ihm")
 
 REPERTOIRE_PROJET=$(dirname "$0")
 REPERTOIRE_SCRIPT=$(basename "$0")
+
 
 
 # ------------------------------------------- Functions -------------------------------------------
@@ -32,14 +36,25 @@ Usage:
 EOF
 }
 
-
-fly_login() {
-    fly -t $EQUIPE status || fly -t $EQUIPE login -c http://localhost:8080 -u ovd -p ovd --team-name $EQUIPE && return 0
+fly_sync() {
+    fly -t $EQUIPE sync
 }
 
-#fly_login() {
-#    fly -t $EQUIPE status || fly -t $EQUIPE login -c https://edi.concourse.craftspace.app.cloud.intra --team-name $EQUIPE && return 0
-#}
+fly_login() {
+    #fly -t test login -c http://localhost:8080 -u test -p test
+    fly -t $EQUIPE status || {
+        echo "Tentative de connexion à Concourse..."
+        fly -t $EQUIPE login -c $CONCOURSE_URL -u $USERNAME -p $PASSWORD --team-name $EQUIPE || {
+            echo "Synchronisation de fly avec la version du serveur..."
+            fly_sync
+            fly -t $EQUIPE login -c $CONCOURSE_URL -u $USERNAME -p $PASSWORD --team-name $EQUIPE
+        }
+    }
+    #fly -t $EQUIPE status || fly -t $EQUIPE login -c http://localhost:8080 -u $USERNAME -p $PASSWORD --team-name $EQUIPE  && return 0
+}
+
+
+
 
 
 fly_set_pipeline() {
