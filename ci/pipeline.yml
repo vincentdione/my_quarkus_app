@@ -1,10 +1,10 @@
 
-registries-ovd: &regsitries-ovd
+registries-ovd: &registries-ovd
   username: ((docker_ovd.username))
   password: ((docker_ovd.password))
+  
 
 
-resource_types:
 
 
 resources:
@@ -24,9 +24,20 @@ resources:
     source:
       driver: git
       uri: ssh://git@github.com:vincentdione/my_quarkus_app.git
+      branch: master
+      private_key: (("github.cle_privee"))
+      file: version.txt
+      commit_message: "[skip ci] Montée de version"
+
+  - name: my_quarkus_image
+    type: registry-image
+    source:
+      repository: ((docker_repo))/((composants.nom_image))
+      <<: *registries-ovd
 
 
 jobs:
+
   - name: installation_du_pipeline
     public: true
     plan:
@@ -36,8 +47,38 @@ jobs:
         file: git-ci/ci/pipeline.yml
         var_files: [git-ci/ci/pipeline-vars.yaml]
 
+  - name: construit_livrables_backend_avec_helm
+    public: true
+    serial_groups: [po024-ihm]
+    plan:
+      - in_parallel:
+        - get: git-ci
+          trigger: true
+        - get: version-backend
+          trigger: true
 
+        - task: build-image
+          privileged: true
+          file: git-ci/ci/tasks/task.yml
+          params:
+            BUILD_ARG_QUARKUS_PROFILE: dev
+            BUILD_ARG_APP_NAME: my-quarkus-app-1
+        
+      - put: my_quarkus_image
+        params:
+          image: image/image.tar
 
+  
+  - name: incremente_version_backend
+    public: true
+    plan:
+      - get: version-backend
+        trigger: true
+        passed:
+          - construit_livrables_backend_avec_helm
+      - put: version-backend
+        params:
+          bump: patch
 
 groups:
   - name: pipeline-backend
