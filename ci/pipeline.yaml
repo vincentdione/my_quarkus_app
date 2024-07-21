@@ -65,6 +65,10 @@ jobs:
           trigger: true
         - get: artifacts
           trigger: true
+      - in_parallel:
+        - load_var: var-version-backend
+          file: version-backend/version
+
         
 
 
@@ -82,6 +86,7 @@ jobs:
       - put: my_quarkus_image
         params:
           image: image/image.tar
+          version: ((.:var-version-backend))
 
   
   - name: incremente_version_backend
