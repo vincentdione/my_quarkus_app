@@ -2,6 +2,7 @@
 registries-ovd: &registries-ovd
   username: ((composants.docker_username))
   password: ((composants.docker_token))
+  repository: ((composants.docker_repo))
   
 
 resources:
@@ -54,6 +55,21 @@ jobs:
         file: git-ci/ci/pipeline.yaml
         var_files: [git-ci/ci/pipeline-vars.yaml]
 
+  - name: analyse_sonar
+    public: true
+    plan:
+      - get: artifacts
+        trigger: true
+      - task: run-sonar-scanner
+        privileged: true
+        file: artifacts/tasks/sonar/task.yaml
+        params:
+          SONAR_PROJECT_KEY: ((sonar.sonar_projectkey))
+          SONAR_SOURCES: src/main
+          SONAR_HOST_URL: ((sonar.sonar_url))
+          SONAR_LOGIN: ((sonar.sonar_login))
+
+
   - name: construit_livrables_backend_avec_helm
     public: true
     serial_groups: [po024-ihm]
@@ -68,9 +84,6 @@ jobs:
       - in_parallel:
         - load_var: var-version-backend
           file: version-backend/version
-
-        
-
 
       - task: build-image
         privileged: true
@@ -100,10 +113,23 @@ jobs:
         params:
           bump: patch
 
+  #- name: deploy_to_k8s
+  #  public: true
+  #  plan:
+  #    - get: git-ci
+  #      trigger: true
+  #      passed:
+  #        - construit_livrables_backend_avec_helm
+  #    - task: deploy-k8s
+  #      privileged: true
+  #      file: artifacts/tasks/deploy-k8s/task.yaml
+
 groups:
   - name: pipeline-backend
     jobs:
+      - analyse_sonar
       - construit_livrables_backend_avec_helm
+#      - deploy_to_k8s
       - incremente_version_backend
   - name: ci
     jobs:
