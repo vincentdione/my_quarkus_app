@@ -60,6 +60,8 @@ jobs:
     plan:
       - get: artifacts
         trigger: true
+      - get: git-ci
+        trigger: true
       - task: run-sonar-scanner
         privileged: true
         file: artifacts/tasks/sonar/task.yaml
@@ -68,8 +70,9 @@ jobs:
         params:
           SONAR_PROJECT_KEY: ((sonar.sonar_projectkey))
           SONAR_SOURCES: src/main
-          SONAR_HOST_URL: ((sonar.sonar_url))
+          #SONAR_HOST_URL: ((sonar.sonar_url))
           SONAR_LOGIN: ((sonar.sonar_login))
+          
 
 
   - name: construit_livrables_backend_avec_helm

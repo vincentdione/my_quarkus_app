@@ -14,7 +14,7 @@ SONAR_ADMIN_PASSWORD="admin"
 SONAR_USER="admin"
 SONAR_USER_PASSWORD="passer"
 SONAR_TOKEN_NAME=""
-
+NETWORK="sonar-network"
 
 
 
@@ -57,16 +57,25 @@ echo "Generated token: $SONAR_USER_TOKEN"
 # Step 3: Run SonarQube analysis
 echo "Running SonarQube analysis..."
 docker run --rm \
-  -e SONAR_HOST_URL=$SONAR_HOST_URL \
-  -e SONAR_LOGIN=$SONAR_USER_TOKEN \
-  -v $(pwd):/usr/src \
+  --network $NETWORK  \
+  -v $(pwd):/usr/src/app \
+  -w /usr/src/app \
   sonarsource/sonar-scanner-cli \
   sonar-scanner \
     -Dsonar.projectKey=$SONAR_PROJECT_KEY \
     -Dsonar.projectName="$SONAR_PROJECT_NAME" \
     -Dsonar.sources=$SONAR_SOURCES \
     -Dsonar.host.url=$SONAR_HOST_URL \
+    -Dsonar.java.binaries=target/classes
     -Dsonar.login=$SONAR_USER_TOKEN
 
-
+docker run --rm \
+  --network stack-local_default  \
+  -v $(pwd):/usr/src/app \
+  -w /usr/src/app \
+  sonarsource/sonar-scanner-cli \
+  -Dsonar.projectKey=my_quarkus_app \
+  -Dsonar.sources=src/main  -Dsonar.java.binaries=target/classes \
+  -Dsonar.host.url=http://sonarqube:9000 \
+  -Dsonar.token=squ_d6575dca0739fb958bbb431e3525c7be63b97205
 

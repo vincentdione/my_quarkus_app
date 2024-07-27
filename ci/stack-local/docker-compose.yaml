@@ -16,6 +16,9 @@ services:
       - sonarqube_logs:/opt/sonarqube/logs
     ports:
       - "9000:9000"
+    networks:
+      - sonar-network
+
   db:
     container_name: db-sonar
     image: postgres:12
@@ -25,6 +28,8 @@ services:
     volumes:
       - postgresql:/var/lib/postgresql
       - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - sonar-network
 
 volumes:
   sonarqube_data:
@@ -32,3 +37,7 @@ volumes:
   sonarqube_logs:
   postgresql:
   postgresql_data:
+
+networks:
+  sonar-network:
+    driver: bridge
