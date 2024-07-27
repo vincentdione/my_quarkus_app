@@ -63,6 +63,8 @@ jobs:
       - task: run-sonar-scanner
         privileged: true
         file: artifacts/tasks/sonar/task.yaml
+        input_mapping:
+          git-sources: git-ci
         params:
           SONAR_PROJECT_KEY: ((sonar.sonar_projectkey))
           SONAR_SOURCES: src/main
